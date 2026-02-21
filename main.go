@@ -27,6 +27,8 @@ func main() {
 	switch cmd {
 	case "login":
 		doLogin()
+	case "logout":
+		doLogout()
 	case "search":
 		doSearch(args, jsonFlag)
 	case "filmography":
@@ -59,6 +61,7 @@ Usage: themoviedb-cli <command> [options]
 
 Commands:
   login                          Authenticate with TMDB
+  logout                         Remove saved credentials
   search <query>                 Search movies, TV, people (prefix: movie:, tv:, person:)
   filmography <person_id>        List filmography of a person
   rate <movie|tv|episode> <id> <rating>  Rate (1-10, use S01E02 format for episodes)
@@ -161,6 +164,15 @@ func doLogin() {
 	}
 
 	fmt.Printf("Logged in as %s (account %d)\n", account.Username, account.ID)
+}
+
+func doLogout() {
+	path := config.Path()
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		fmt.Fprintf(os.Stderr, "Error removing config: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Println("Logged out. Credentials removed.")
 }
 
 func doSearch(args []string, jsonFlag bool) {
