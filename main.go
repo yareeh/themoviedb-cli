@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"encoding/base64"
+	"encoding/json"
 	"strings"
 	"time"
 
@@ -94,7 +96,14 @@ func mustClient() *api.Client {
 		fmt.Fprintln(os.Stderr, "Not logged in. Run: themoviedb-cli login")
 		os.Exit(1)
 	}
-	return api.New(cfg.AccessToken, cfg.SessionID, cfg.AccountID)
+	// Auto-fill account object ID from JWT if missing (existing configs)
+	if cfg.AccountObjectID == "" {
+		cfg.AccountObjectID = extractJWTSub(cfg.AccessToken)
+		if cfg.AccountObjectID != "" {
+			_ = config.Save(cfg)
+		}
+	}
+	return api.New(cfg.AccessToken, cfg.SessionID, cfg.AccountID, cfg.AccountObjectID)
 }
 
 func doLogin() {
@@ -107,7 +116,7 @@ func doLogin() {
 		os.Exit(1)
 	}
 
-	client := api.New(token, "", 0)
+	client := api.New(token, "", 0, "")
 
 	// Create request token
 	reqToken, err := client.CreateRequestToken()
@@ -128,17 +137,20 @@ func doLogin() {
 	}
 
 	// Get account info
-	sessionClient := api.New(token, sessionID, 0)
+	sessionClient := api.New(token, sessionID, 0, "")
 	account, err := sessionClient.GetAccount()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error getting account: %v\n", err)
 		os.Exit(1)
 	}
 
+	accountObjectID := extractJWTSub(token)
+
 	cfg := &config.Config{
-		AccessToken: token,
-		SessionID:   sessionID,
-		AccountID:   account.ID,
+		AccessToken:     token,
+		SessionID:       sessionID,
+		AccountID:       account.ID,
+		AccountObjectID: accountObjectID,
 	}
 	if err := config.Save(cfg); err != nil {
 		fmt.Fprintf(os.Stderr, "Error saving config: %v\n", err)
@@ -476,6 +488,30 @@ func hasFlag(args *[]string, flag string) bool {
 	}
 	*args = filtered
 	return found
+}
+
+// extractJWTSub extracts the "sub" claim from a JWT token (no verification).
+func extractJWTSub(token string) string {
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return ""
+	}
+	// Pad base64url to standard base64
+	payload := parts[1]
+	if m := len(payload) % 4; m != 0 {
+		payload += strings.Repeat("=", 4-m)
+	}
+	data, err := base64.URLEncoding.DecodeString(payload)
+	if err != nil {
+		return ""
+	}
+	var claims struct {
+		Sub string `json:"sub"`
+	}
+	if err := json.Unmarshal(data, &claims); err != nil {
+		return ""
+	}
+	return claims.Sub
 }
 
 func exitOnErr(err error) {

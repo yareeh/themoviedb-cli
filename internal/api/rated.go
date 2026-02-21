@@ -68,7 +68,7 @@ func (c *Client) GetAllRatedMovies() ([]RatedMovie, error) {
 			"page":    {strconv.Itoa(page)},
 			"sort_by": {"created_at.desc"},
 		}
-		path := fmt.Sprintf("/account/%d/movie/rated", c.accountID)
+		path := fmt.Sprintf("/account/%s/movie/rated", c.accountObjectID)
 		data, err := c.getV4(path, params)
 		if err != nil {
 			return nil, fmt.Errorf("getting rated movies: %w", err)
@@ -95,7 +95,7 @@ func (c *Client) GetAllRatedTV() ([]RatedTV, error) {
 			"page":    {strconv.Itoa(page)},
 			"sort_by": {"created_at.desc"},
 		}
-		path := fmt.Sprintf("/account/%d/tv/rated", c.accountID)
+		path := fmt.Sprintf("/account/%s/tv/rated", c.accountObjectID)
 		data, err := c.getV4(path, params)
 		if err != nil {
 			return nil, fmt.Errorf("getting rated TV: %w", err)
@@ -119,7 +119,7 @@ func (c *Client) GetRatedMoviesPage(page, pageSize int) (*RatedMoviesResponse, e
 		"page":    {strconv.Itoa(page)},
 		"sort_by": {"created_at.desc"},
 	}
-	path := fmt.Sprintf("/account/%d/movie/rated", c.accountID)
+	path := fmt.Sprintf("/account/%s/movie/rated", c.accountObjectID)
 	data, err := c.getV4(path, params)
 	if err != nil {
 		return nil, fmt.Errorf("getting rated movies: %w", err)

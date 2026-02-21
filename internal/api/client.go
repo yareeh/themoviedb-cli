@@ -12,18 +12,20 @@ import (
 const baseURL = "https://api.themoviedb.org/3"
 
 type Client struct {
-	token     string
-	sessionID string
-	accountID int
-	http      *http.Client
+	token           string
+	sessionID       string
+	accountID       int
+	accountObjectID string
+	http            *http.Client
 }
 
-func New(token, sessionID string, accountID int) *Client {
+func New(token, sessionID string, accountID int, accountObjectID string) *Client {
 	return &Client{
-		token:     token,
-		sessionID: sessionID,
-		accountID: accountID,
-		http:      &http.Client{},
+		token:           token,
+		sessionID:       sessionID,
+		accountID:       accountID,
+		accountObjectID: accountObjectID,
+		http:            &http.Client{},
 	}
 }
 
