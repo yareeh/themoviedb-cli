@@ -12,11 +12,21 @@ A concise CLI for [The Movie Database (TMDB)](https://www.themoviedb.org), desig
 
 ## Installation
 
+### Homebrew (macOS/Linux)
+
 ```bash
-go build -o themoviedb-cli .
-# Or install globally:
+brew install yareeh/tap/themoviedb-cli
+```
+
+### Go install
+
+```bash
 go install github.com/yareeh/themoviedb-cli@latest
 ```
+
+### Binary download
+
+Download pre-built binaries from the [Releases](https://github.com/yareeh/themoviedb-cli/releases) page.
 
 ## Setup
 
