@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/yareeh/themoviedb-cli/internal/api"
 	"github.com/yareeh/themoviedb-cli/internal/config"
@@ -60,7 +61,7 @@ Commands:
   watchlist <add|remove|list> [movie|tv] [id]  Manage watchlist
   seasons <series_id>            List seasons of a TV series
   episodes <series_id> <season>  List episodes of a season
-  rated [movie|tv]               List your rated movies/TV
+  rated [movie|tv] [all|ytd|last N|from YYYY-MM-DD]  List rated
 
 Options:
   --json    Output as JSON instead of text
@@ -77,6 +78,9 @@ Examples:
   themoviedb-cli seasons 1396
   themoviedb-cli episodes 1396 5
   themoviedb-cli rated movie
+  themoviedb-cli rated movie ytd
+  themoviedb-cli rated movie last 10
+  themoviedb-cli rated tv from 2025-06-01
 `)
 }
 
@@ -318,20 +322,125 @@ func doEpisodes(args []string, jsonFlag bool) {
 }
 
 func doRated(args []string, jsonFlag bool) {
-	client := mustClient()
+	// Parse: rated [movie|tv] [all|ytd|last N|from YYYY-MM-DD]
 	mediaType := "movie"
-	if len(args) > 0 {
-		mediaType = args[0]
+	filterMode := "all"
+	filterValue := ""
+
+	i := 0
+	if i < len(args) && (args[i] == "movie" || args[i] == "tv") {
+		mediaType = args[i]
+		i++
 	}
+	if i < len(args) {
+		filterMode = args[i]
+		i++
+	}
+	if i < len(args) {
+		filterValue = args[i]
+	}
+
+	client := mustClient()
+
 	if mediaType == "tv" {
-		resp, err := client.GetRatedTV()
+		shows, err := client.GetAllRatedTV()
 		exitOnErr(err)
-		output.TVShows(resp.Results, jsonFlag)
+		shows = filterRatedTV(shows, filterMode, filterValue)
+		output.RatedTVShows(shows, jsonFlag)
 	} else {
-		resp, err := client.GetRatedMovies()
+		movies, err := client.GetAllRatedMovies()
 		exitOnErr(err)
-		output.Movies(resp.Results, jsonFlag)
+		movies = filterRatedMovies(movies, filterMode, filterValue)
+		output.RatedMovies(movies, jsonFlag)
 	}
+}
+
+func filterRatedMovies(movies []api.RatedMovie, mode, value string) []api.RatedMovie {
+	switch mode {
+	case "all", "":
+		return movies
+	case "ytd":
+		cutoff := fmt.Sprintf("%d-01-01", currentYear())
+		var filtered []api.RatedMovie
+		for _, m := range movies {
+			if m.AccountRating.CreatedAt >= cutoff {
+				filtered = append(filtered, m)
+			}
+		}
+		return filtered
+	case "last":
+		n, err := strconv.Atoi(value)
+		if err != nil || n <= 0 {
+			fmt.Fprintln(os.Stderr, "Usage: rated [movie|tv] last <N>")
+			os.Exit(1)
+		}
+		if n > len(movies) {
+			n = len(movies)
+		}
+		return movies[:n]
+	case "from":
+		if value == "" {
+			fmt.Fprintln(os.Stderr, "Usage: rated [movie|tv] from YYYY-MM-DD")
+			os.Exit(1)
+		}
+		var filtered []api.RatedMovie
+		for _, m := range movies {
+			if m.AccountRating.CreatedAt >= value {
+				filtered = append(filtered, m)
+			}
+		}
+		return filtered
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown filter: %s (use all, ytd, last N, or from YYYY-MM-DD)\n", mode)
+		os.Exit(1)
+		return nil
+	}
+}
+
+func filterRatedTV(shows []api.RatedTV, mode, value string) []api.RatedTV {
+	switch mode {
+	case "all", "":
+		return shows
+	case "ytd":
+		cutoff := fmt.Sprintf("%d-01-01", currentYear())
+		var filtered []api.RatedTV
+		for _, s := range shows {
+			if s.AccountRating.CreatedAt >= cutoff {
+				filtered = append(filtered, s)
+			}
+		}
+		return filtered
+	case "last":
+		n, err := strconv.Atoi(value)
+		if err != nil || n <= 0 {
+			fmt.Fprintln(os.Stderr, "Usage: rated [movie|tv] last <N>")
+			os.Exit(1)
+		}
+		if n > len(shows) {
+			n = len(shows)
+		}
+		return shows[:n]
+	case "from":
+		if value == "" {
+			fmt.Fprintln(os.Stderr, "Usage: rated [movie|tv] from YYYY-MM-DD")
+			os.Exit(1)
+		}
+		var filtered []api.RatedTV
+		for _, s := range shows {
+			if s.AccountRating.CreatedAt >= value {
+				filtered = append(filtered, s)
+			}
+		}
+		return filtered
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown filter: %s (use all, ytd, last N, or from YYYY-MM-DD)\n", mode)
+		os.Exit(1)
+		return nil
+	}
+}
+
+func currentYear() int {
+	return time.Now().Year()
 }
 
 // parseEpisodeCode parses "S01E02" into season=1, episode=2

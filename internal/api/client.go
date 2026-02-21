@@ -27,19 +27,18 @@ func New(token, sessionID string, accountID int) *Client {
 	}
 }
 
-func (c *Client) get(path string, params url.Values) (json.RawMessage, error) {
-	u := baseURL + path
-	if params != nil {
-		u += "?" + params.Encode()
-	}
+func newGetRequest(u, token string) (*http.Request, error) {
 	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return nil, err
 	}
-	req.Header.Set("Authorization", "Bearer "+c.token)
+	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("Accept", "application/json")
+	return req, nil
+}
 
-	resp, err := c.http.Do(req)
+func doRequest(client *http.Client, req *http.Request) (json.RawMessage, error) {
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +48,18 @@ func (c *Client) get(path string, params url.Values) (json.RawMessage, error) {
 		return nil, fmt.Errorf("API error %d: %s", resp.StatusCode, string(body))
 	}
 	return body, nil
+}
+
+func (c *Client) get(path string, params url.Values) (json.RawMessage, error) {
+	u := baseURL + path
+	if params != nil {
+		u += "?" + params.Encode()
+	}
+	req, err := newGetRequest(u, c.token)
+	if err != nil {
+		return nil, err
+	}
+	return doRequest(c.http, req)
 }
 
 func (c *Client) post(path string, payload any) (json.RawMessage, error) {

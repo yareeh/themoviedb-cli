@@ -93,6 +93,45 @@ func Episodes(episodes []api.TVEpisode, seasonName string, asJSON bool) {
 	}
 }
 
+func RatedMovies(movies []api.RatedMovie, asJSON bool) {
+	if asJSON {
+		printJSON(movies)
+		return
+	}
+	for i, m := range movies {
+		year := yearFrom(m.ReleaseDate)
+		ratedDate := dateOnly(m.AccountRating.CreatedAt)
+		fmt.Printf("%d. [%d] %s (%s) ★%.1f [rated %.0f on %s]\n",
+			i+1, m.ID, m.Title, year, m.VoteAverage, m.AccountRating.Value, ratedDate)
+	}
+	if len(movies) > 0 {
+		fmt.Printf("\n%d movies\n", len(movies))
+	}
+}
+
+func RatedTVShows(shows []api.RatedTV, asJSON bool) {
+	if asJSON {
+		printJSON(shows)
+		return
+	}
+	for i, s := range shows {
+		year := yearFrom(s.FirstAirDate)
+		ratedDate := dateOnly(s.AccountRating.CreatedAt)
+		fmt.Printf("%d. [%d] %s (%s) ★%.1f [rated %.0f on %s]\n",
+			i+1, s.ID, s.Name, year, s.VoteAverage, s.AccountRating.Value, ratedDate)
+	}
+	if len(shows) > 0 {
+		fmt.Printf("\n%d shows\n", len(shows))
+	}
+}
+
+func dateOnly(ts string) string {
+	if len(ts) >= 10 {
+		return ts[:10]
+	}
+	return ts
+}
+
 func yearFrom(date string) string {
 	if len(date) >= 4 {
 		return date[:4]
