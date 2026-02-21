@@ -1,5 +1,13 @@
 # themoviedb-cli
 
+[![CI](https://github.com/yareeh/themoviedb-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/yareeh/themoviedb-cli/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/yareeh/themoviedb-cli/graph/badge.svg)](https://codecov.io/gh/yareeh/themoviedb-cli)
+[![Go](https://img.shields.io/github/go-mod/go-version/yareeh/themoviedb-cli)](https://go.dev)
+[![Release](https://img.shields.io/github/v/release/yareeh/themoviedb-cli)](https://github.com/yareeh/themoviedb-cli/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/yareeh/themoviedb-cli)](https://goreportcard.com/report/github.com/yareeh/themoviedb-cli)
+[![Built for AI Agents](https://img.shields.io/badge/built%20for-AI%20agents-blueviolet)](https://github.com/yareeh/themoviedb-cli)
+
 A concise CLI for [The Movie Database (TMDB)](https://www.themoviedb.org), designed for agentic use with AI assistants.
 
 ## Installation
