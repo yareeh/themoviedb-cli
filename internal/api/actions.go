@@ -39,6 +39,30 @@ func (c *Client) RateEpisode(seriesID, season, episode int, rating float64) erro
 	return nil
 }
 
+func (c *Client) DeleteMovieRating(movieID int) error {
+	_, err := c.delete(fmt.Sprintf("/movie/%d/rating", movieID))
+	if err != nil {
+		return fmt.Errorf("deleting movie rating: %w", err)
+	}
+	return nil
+}
+
+func (c *Client) DeleteTVRating(seriesID int) error {
+	_, err := c.delete(fmt.Sprintf("/tv/%d/rating", seriesID))
+	if err != nil {
+		return fmt.Errorf("deleting TV rating: %w", err)
+	}
+	return nil
+}
+
+func (c *Client) DeleteEpisodeRating(seriesID, season, episode int) error {
+	_, err := c.delete(fmt.Sprintf("/tv/%d/season/%d/episode/%d/rating", seriesID, season, episode))
+	if err != nil {
+		return fmt.Errorf("deleting episode rating: %w", err)
+	}
+	return nil
+}
+
 func (c *Client) AddToWatchlist(mediaType string, mediaID int) error {
 	payload := map[string]any{
 		"media_type": mediaType,

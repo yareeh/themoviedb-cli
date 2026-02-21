@@ -33,6 +33,8 @@ func main() {
 		doFilmography(args, jsonFlag)
 	case "rate":
 		doRate(args)
+	case "unrate":
+		doUnrate(args)
 	case "watchlist":
 		doWatchlist(args, jsonFlag)
 	case "seasons":
@@ -60,6 +62,7 @@ Commands:
   search <query>                 Search movies, TV, people (prefix: movie:, tv:, person:)
   filmography <person_id>        List filmography of a person
   rate <movie|tv|episode> <id> <rating>  Rate (1-10, use S01E02 format for episodes)
+  unrate <movie|tv|episode> <id>        Remove a rating
   watchlist <add|remove|list> [movie|tv] [id]  Manage watchlist
   seasons <series_id>            List seasons of a TV series
   episodes <series_id> <season>  List episodes of a season
@@ -248,6 +251,45 @@ func doRate(args []string) {
 		exitOnErr(err)
 		err = client.RateEpisode(seriesID, season, episode, rating)
 		output.Status(fmt.Sprintf("rated S%02dE%02d of %d as %.1f", season, episode, seriesID, rating), err)
+
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown media type: %s (use movie, tv, or episode)\n", mediaType)
+		os.Exit(1)
+	}
+}
+
+func doUnrate(args []string) {
+	if len(args) < 2 {
+		fmt.Fprintln(os.Stderr, "Usage: themoviedb-cli unrate <movie|tv|episode> <id> [S01E02]")
+		os.Exit(1)
+	}
+	client := mustClient()
+	mediaType := args[0]
+
+	switch mediaType {
+	case "movie":
+		id, err := strconv.Atoi(args[1])
+		exitOnErr(err)
+		err = client.DeleteMovieRating(id)
+		output.Status(fmt.Sprintf("removed rating from movie %d", id), err)
+
+	case "tv":
+		id, err := strconv.Atoi(args[1])
+		exitOnErr(err)
+		err = client.DeleteTVRating(id)
+		output.Status(fmt.Sprintf("removed rating from TV %d", id), err)
+
+	case "episode":
+		if len(args) < 3 {
+			fmt.Fprintln(os.Stderr, "Usage: themoviedb-cli unrate episode <series_id> S01E02")
+			os.Exit(1)
+		}
+		seriesID, err := strconv.Atoi(args[1])
+		exitOnErr(err)
+		season, episode, err := parseEpisodeCode(args[2])
+		exitOnErr(err)
+		err = client.DeleteEpisodeRating(seriesID, season, episode)
+		output.Status(fmt.Sprintf("removed rating from S%02dE%02d of %d", season, episode, seriesID), err)
 
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown media type: %s (use movie, tv, or episode)\n", mediaType)
