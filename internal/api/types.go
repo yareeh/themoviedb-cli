@@ -98,6 +98,35 @@ type SeasonDetails struct {
 	Episodes     []TVEpisode `json:"episodes"`
 }
 
+// Movie full details (with credits)
+
+type CrewMember struct {
+	Name string `json:"name"`
+	Job  string `json:"job"`
+}
+
+type MovieCredits struct {
+	Crew []CrewMember `json:"crew"`
+}
+
+type MovieFullDetails struct {
+	ID            int          `json:"id"`
+	Title         string       `json:"title"`
+	OriginalTitle string       `json:"original_title"`
+	ReleaseDate   string       `json:"release_date"`
+	Overview      string       `json:"overview"`
+	Credits       MovieCredits `json:"credits"`
+}
+
+func (m *MovieFullDetails) Director() string {
+	for _, c := range m.Credits.Crew {
+		if c.Job == "Director" {
+			return c.Name
+		}
+	}
+	return ""
+}
+
 // Auth
 
 type RequestTokenResponse struct {

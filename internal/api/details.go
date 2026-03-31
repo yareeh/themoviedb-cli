@@ -3,7 +3,22 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 )
+
+func (c *Client) GetMovieInfo(movieID int) (*MovieFullDetails, error) {
+	path := fmt.Sprintf("/movie/%d", movieID)
+	params := url.Values{"append_to_response": {"credits"}}
+	data, err := c.get(path, params)
+	if err != nil {
+		return nil, fmt.Errorf("getting movie info: %w", err)
+	}
+	var resp MovieFullDetails
+	if err := json.Unmarshal(data, &resp); err != nil {
+		return nil, err
+	}
+	return &resp, nil
+}
 
 func (c *Client) Filmography(personID int) (*CombinedCreditsResponse, error) {
 	path := fmt.Sprintf("/person/%d/combined_credits", personID)

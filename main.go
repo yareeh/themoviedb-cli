@@ -45,6 +45,8 @@ func main() {
 		doEpisodes(args, jsonFlag)
 	case "rated":
 		doRated(args, jsonFlag)
+	case "info":
+		doInfo(args)
 	case "help", "--help", "-h":
 		printUsage()
 	default:
@@ -566,6 +568,20 @@ func extractJWTSub(token string) string {
 		return ""
 	}
 	return claims.Sub
+}
+
+func doInfo(args []string) {
+	if len(args) < 2 || args[0] != "movie" {
+		fmt.Fprintln(os.Stderr, "Usage: themoviedb-cli info movie <id>")
+		os.Exit(1)
+	}
+	id, err := strconv.Atoi(args[1])
+	exitOnErr(err)
+	client := mustClient()
+	info, err := client.GetMovieInfo(id)
+	exitOnErr(err)
+	data, _ := json.MarshalIndent(info, "", "  ")
+	fmt.Println(string(data))
 }
 
 func exitOnErr(err error) {
