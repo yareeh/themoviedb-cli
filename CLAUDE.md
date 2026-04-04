@@ -39,6 +39,16 @@ internal/
 - Rating scale: 0.5–10.0 (TMDB scale, not 1–5)
 - V4 rated endpoints use account_object_id (hex, from JWT sub claim), not numeric account_id
 
+
+## Development workflow (TDD)
+
+For every new feature or bug fix:
+1. **Write tests first**
+2. **Implement** the feature
+3. **Lint and format**
+4. **Run tests**
+5. Fix any issues and repeat until clean
+
 ## Releasing
 
 Tag and release using `gh`:
