@@ -12,6 +12,7 @@ import (
 	"github.com/yareeh/themoviedb-cli/internal/api"
 	"github.com/yareeh/themoviedb-cli/internal/config"
 	"github.com/yareeh/themoviedb-cli/internal/output"
+	"github.com/yareeh/themoviedb-cli/internal/version"
 )
 
 func main() {
@@ -49,6 +50,8 @@ func main() {
 		doInfo(args)
 	case "help", "--help", "-h":
 		printUsage()
+	case "version", "--version", "-v":
+		fmt.Printf("themoviedb-cli version %s\n", version.Current())
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", cmd)
 		printUsage()
