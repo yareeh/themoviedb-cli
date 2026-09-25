@@ -10,11 +10,11 @@ import (
 
 // Test data: well-known TMDB entries
 const (
-	testMovieID    = 603   // The Matrix
+	testMovieID    = 603 // The Matrix
 	testMovieTitle = "The Matrix"
-	testSeriesID   = 1396  // Breaking Bad
+	testSeriesID   = 1396 // Breaking Bad
 	testSeriesName = "Breaking Bad"
-	testPersonID   = 287   // Brad Pitt
+	testPersonID   = 287 // Brad Pitt
 	testPersonName = "Brad Pitt"
 	testSeasonNum  = 5
 	testEpisodeSxx = "S05E16" // Felina

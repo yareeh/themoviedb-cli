@@ -50,13 +50,13 @@ type SearchPersonResponse struct {
 // Credits / Filmography
 
 type CastCredit struct {
-	ID          int    `json:"id"`
-	Title       string `json:"title"`        // movie
-	Name        string `json:"name"`         // tv
-	MediaType   string `json:"media_type"`
-	ReleaseDate string `json:"release_date"` // movie
+	ID           int    `json:"id"`
+	Title        string `json:"title"` // movie
+	Name         string `json:"name"`  // tv
+	MediaType    string `json:"media_type"`
+	ReleaseDate  string `json:"release_date"`   // movie
 	FirstAirDate string `json:"first_air_date"` // tv
-	Character   string `json:"character"`
+	Character    string `json:"character"`
 }
 
 type CombinedCreditsResponse struct {
