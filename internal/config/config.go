@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	AccessToken    string `json:"access_token"`
-	SessionID      string `json:"session_id,omitempty"`
-	AccountID      int    `json:"account_id,omitempty"`
+	AccessToken     string `json:"access_token"`
+	SessionID       string `json:"session_id,omitempty"`
+	AccountID       int    `json:"account_id,omitempty"`
 	AccountObjectID string `json:"account_object_id,omitempty"`
 }
 

@@ -18,15 +18,15 @@ func TestParseEpisodeCode(t *testing.T) {
 		{"s01e02", 1, 2, false}, // lowercase
 		{"S10E01", 10, 1, false},
 		{"S00E00", 0, 0, false},
-		{"S1E1", 1, 1, false},   // single digit
-		{"E01S02", 0, 0, true},  // wrong order
-		{"S01", 0, 0, true},     // missing episode
-		{"SE01", 0, 0, true},    // missing season number
-		{"01E02", 0, 0, true},   // missing S prefix
+		{"S1E1", 1, 1, false},  // single digit
+		{"E01S02", 0, 0, true}, // wrong order
+		{"S01", 0, 0, true},    // missing episode
+		{"SE01", 0, 0, true},   // missing season number
+		{"01E02", 0, 0, true},  // missing S prefix
 		{"", 0, 0, true},
 		{"hello", 0, 0, true},
-		{"SXXE01", 0, 0, true},  // non-numeric season
-		{"S01EXX", 0, 0, true},  // non-numeric episode
+		{"SXXE01", 0, 0, true}, // non-numeric season
+		{"S01EXX", 0, 0, true}, // non-numeric episode
 	}
 
 	for _, tt := range tests {

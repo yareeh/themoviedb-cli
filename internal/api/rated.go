@@ -15,21 +15,21 @@ type AccountRating struct {
 }
 
 type RatedMovie struct {
-	ID             int           `json:"id"`
-	Title          string        `json:"title"`
-	ReleaseDate    string        `json:"release_date"`
-	Overview       string        `json:"overview"`
-	VoteAverage    float64       `json:"vote_average"`
-	AccountRating  AccountRating `json:"account_rating"`
+	ID            int           `json:"id"`
+	Title         string        `json:"title"`
+	ReleaseDate   string        `json:"release_date"`
+	Overview      string        `json:"overview"`
+	VoteAverage   float64       `json:"vote_average"`
+	AccountRating AccountRating `json:"account_rating"`
 }
 
 type RatedTV struct {
-	ID             int           `json:"id"`
-	Name           string        `json:"name"`
-	FirstAirDate   string        `json:"first_air_date"`
-	Overview       string        `json:"overview"`
-	VoteAverage    float64       `json:"vote_average"`
-	AccountRating  AccountRating `json:"account_rating"`
+	ID            int           `json:"id"`
+	Name          string        `json:"name"`
+	FirstAirDate  string        `json:"first_air_date"`
+	Overview      string        `json:"overview"`
+	VoteAverage   float64       `json:"vote_average"`
+	AccountRating AccountRating `json:"account_rating"`
 }
 
 type RatedMoviesResponse struct {
