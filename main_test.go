@@ -1,10 +1,70 @@
 package main
 
 import (
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/yareeh/themoviedb-cli/internal/api"
 )
+
+func TestFlagValue(t *testing.T) {
+	tests := []struct {
+		name     string
+		args     []string
+		want     string
+		wantArgs []string
+	}{
+		{"separate value", []string{"--job", "Director", "287"}, "Director", []string{"287"}},
+		{"equals form", []string{"287", "--job=Writer"}, "Writer", []string{"287"}},
+		{"absent", []string{"287"}, "", []string{"287"}},
+		{"missing value", []string{"287", "--job"}, "", []string{"287"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := append([]string{}, tt.args...)
+			got := flagValue(&args, "--job")
+			if got != tt.want {
+				t.Errorf("flagValue = %q, want %q", got, tt.want)
+			}
+			if strings.Join(args, " ") != strings.Join(tt.wantArgs, " ") {
+				t.Errorf("args = %v, want %v", args, tt.wantArgs)
+			}
+		})
+	}
+}
+
+func TestFilterCredits(t *testing.T) {
+	credits := []api.CastCredit{
+		{ID: 1, Role: "cast", Character: "Neo"},
+		{ID: 2, Role: "crew", Job: "Director"},
+		{ID: 3, Role: "crew", Job: "Writer"},
+	}
+	ids := func(cs []api.CastCredit) string {
+		var s []string
+		for _, c := range cs {
+			s = append(s, strconv.Itoa(c.ID))
+		}
+		return strings.Join(s, ",")
+	}
+	tests := []struct {
+		name, role, job, want string
+	}{
+		{"all", "", "", "1,2,3"},
+		{"cast only", "cast", "", "1"},
+		{"crew only", "crew", "", "2,3"},
+		{"a job", "", "director", "2"},
+		{"job beats cast flag", "cast", "Writer", "3"},
+		{"no match", "", "Composer", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ids(filterCredits(credits, tt.role, tt.job)); got != tt.want {
+				t.Errorf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
 
 func TestParseEpisodeCode(t *testing.T) {
 	tests := []struct {

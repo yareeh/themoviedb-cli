@@ -68,7 +68,7 @@ Commands:
   login                          Authenticate with TMDB
   logout                         Remove saved credentials
   search <query>                 Search movies, TV, people (prefix: movie:, tv:, person:)
-  filmography <person_id>        List filmography of a person
+  filmography <person_id> [--cast|--crew] [--job J]  List a person's cast and crew credits
   rate <movie|tv|episode> <id> <rating>  Rate (1-10, use S01E02 format for episodes)
   unrate <movie|tv|episode> <id>        Remove a rating
   watchlist <add|remove|list> [movie|tv] [id]  Manage watchlist
@@ -84,6 +84,8 @@ Examples:
   themoviedb-cli search "tv:Breaking Bad"
   themoviedb-cli search "person:Brad Pitt"
   themoviedb-cli filmography 287
+  themoviedb-cli filmography 1769 --job Director
+  themoviedb-cli filmography 287 --cast --json
   themoviedb-cli rate movie 603 9
   themoviedb-cli rate episode 1396 S05E16 10
   themoviedb-cli watchlist add movie 603
@@ -217,16 +219,65 @@ func doSearch(args []string, jsonFlag bool) {
 }
 
 func doFilmography(args []string, jsonFlag bool) {
-	if len(args) == 0 {
-		fmt.Fprintln(os.Stderr, "Usage: themoviedb-cli filmography <person_id>")
+	castOnly := hasFlag(&args, "--cast")
+	crewOnly := hasFlag(&args, "--crew")
+	job := flagValue(&args, "--job")
+	if len(args) == 0 || (castOnly && crewOnly) {
+		fmt.Fprintln(os.Stderr, "Usage: themoviedb-cli filmography <person_id> [--cast | --crew] [--job <Director|Writer|…>]")
 		os.Exit(1)
+	}
+	role := ""
+	if castOnly {
+		role = "cast"
+	} else if crewOnly {
+		role = "crew"
 	}
 	id, err := strconv.Atoi(args[0])
 	exitOnErr(err)
 	client := mustClient()
 	resp, err := client.Filmography(id)
 	exitOnErr(err)
-	output.Filmography(resp.Cast, jsonFlag)
+	output.Filmography(filterCredits(resp.Credits(), role, job), jsonFlag)
+}
+
+// filterCredits keeps the credits of one role ("cast" | "crew" | "" for both) and, when
+// job is given, only the crew credits with that job (case-insensitive, e.g. "director").
+func filterCredits(credits []api.CastCredit, role, job string) []api.CastCredit {
+	out := make([]api.CastCredit, 0, len(credits))
+	for _, c := range credits {
+		if job != "" {
+			if c.Role == "crew" && strings.EqualFold(c.Job, job) {
+				out = append(out, c)
+			}
+			continue
+		}
+		if role == "" || c.Role == role {
+			out = append(out, c)
+		}
+	}
+	return out
+}
+
+// flagValue removes "--name value" / "--name=value" from args and returns the value ("" if absent).
+func flagValue(args *[]string, name string) string {
+	var value string
+	filtered := make([]string, 0, len(*args))
+	for i := 0; i < len(*args); i++ {
+		a := (*args)[i]
+		switch {
+		case a == name:
+			if i+1 < len(*args) {
+				value = (*args)[i+1]
+				i++
+			}
+		case strings.HasPrefix(a, name+"="):
+			value = strings.TrimPrefix(a, name+"=")
+		default:
+			filtered = append(filtered, a)
+		}
+	}
+	*args = filtered
+	return value
 }
 
 func doRate(args []string) {

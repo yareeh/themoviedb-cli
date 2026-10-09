@@ -180,3 +180,23 @@ func TestCombinedCreditsResponse(t *testing.T) {
 		t.Errorf("cast[1].MediaType = %q", resp.Cast[1].MediaType)
 	}
 }
+
+func TestCombinedCreditsCrew(t *testing.T) {
+	raw := `{"cast":[{"id":603,"title":"The Matrix","media_type":"movie","release_date":"1999-03-24","character":"Neo"}],` +
+		`"crew":[{"id":84,"title":"Lost in Translation","media_type":"movie","release_date":"2003-09-12","job":"Director","department":"Directing"},` +
+		`{"id":84,"title":"Lost in Translation","media_type":"movie","release_date":"2003-09-12","job":"Writer","department":"Writing"}]}`
+	var resp CombinedCreditsResponse
+	if err := json.Unmarshal([]byte(raw), &resp); err != nil {
+		t.Fatal(err)
+	}
+	if len(resp.Crew) != 2 || resp.Crew[0].Job != "Director" || resp.Crew[0].Department != "Directing" {
+		t.Fatalf("crew = %+v", resp.Crew)
+	}
+	all := resp.Credits()
+	if len(all) != 3 {
+		t.Fatalf("Credits() = %d, want 3", len(all))
+	}
+	if all[0].Role != "cast" || all[1].Role != "crew" || all[2].Role != "crew" {
+		t.Errorf("roles = %q %q %q", all[0].Role, all[1].Role, all[2].Role)
+	}
+}

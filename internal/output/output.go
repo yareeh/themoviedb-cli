@@ -63,12 +63,19 @@ func Filmography(credits []api.CastCredit, asJSON bool) {
 			kind = "tv"
 		}
 		year := yearFrom(date)
-		char := ""
-		if c.Character != "" {
-			char = fmt.Sprintf(" as %s", c.Character)
-		}
-		fmt.Printf("%d. [%s:%d] %s (%s)%s\n   %s\n", i+1, kind, c.ID, title, year, char, tmdbURL(kind, c.ID))
+		fmt.Printf("%d. [%s:%d] %s (%s)%s\n   %s\n", i+1, kind, c.ID, title, year, creditDetail(c), tmdbURL(kind, c.ID))
 	}
+}
+
+// creditDetail is the role part of a filmography line: " as Neo" for cast, " — Director" for crew.
+func creditDetail(c api.CastCredit) string {
+	switch {
+	case c.Character != "":
+		return fmt.Sprintf(" as %s", c.Character)
+	case c.Job != "":
+		return fmt.Sprintf(" — %s", c.Job)
+	}
+	return ""
 }
 
 func Seasons(seasons []api.TVSeason, showName string, asJSON bool) {

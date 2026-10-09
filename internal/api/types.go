@@ -57,10 +57,29 @@ type CastCredit struct {
 	ReleaseDate string `json:"release_date"` // movie
 	FirstAirDate string `json:"first_air_date"` // tv
 	Character   string `json:"character"`
+	// Crew credits (and Role, set by Credits) — empty on plain cast entries.
+	Job        string `json:"job,omitempty"`        // Director, Writer, Producer, …
+	Department string `json:"department,omitempty"` // Directing, Writing, Production, …
+	Role       string `json:"role,omitempty"`       // "cast" | "crew"
 }
 
 type CombinedCreditsResponse struct {
 	Cast []CastCredit `json:"cast"`
+	Crew []CastCredit `json:"crew"`
+}
+
+// Credits returns the cast credits followed by the crew credits, each marked with its Role.
+func (r CombinedCreditsResponse) Credits() []CastCredit {
+	out := make([]CastCredit, 0, len(r.Cast)+len(r.Crew))
+	for _, c := range r.Cast {
+		c.Role = "cast"
+		out = append(out, c)
+	}
+	for _, c := range r.Crew {
+		c.Role = "crew"
+		out = append(out, c)
+	}
+	return out
 }
 
 // TV details

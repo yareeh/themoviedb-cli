@@ -57,7 +57,10 @@ themoviedb-cli search "The Matrix" --json
 ### Filmography
 
 ```bash
-themoviedb-cli filmography 287    # Brad Pitt's filmography
+themoviedb-cli filmography 287                    # cast and crew credits (Brad Pitt)
+themoviedb-cli filmography 1769 --job Director    # only the films a person directed
+themoviedb-cli filmography 287 --cast             # acting credits only (--crew: crew only)
+themoviedb-cli filmography 287 --json             # JSON; each credit has "role": "cast"|"crew", and "job" for crew
 ```
 
 ### Rate

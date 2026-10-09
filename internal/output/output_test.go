@@ -2,7 +2,28 @@ package output
 
 import (
 	"testing"
+
+	"github.com/yareeh/themoviedb-cli/internal/api"
 )
+
+func TestCreditDetail(t *testing.T) {
+	tests := []struct {
+		name string
+		c    api.CastCredit
+		want string
+	}{
+		{"cast", api.CastCredit{Character: "Neo"}, " as Neo"},
+		{"crew", api.CastCredit{Job: "Director"}, " — Director"},
+		{"neither", api.CastCredit{}, ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := creditDetail(tt.c); got != tt.want {
+				t.Errorf("creditDetail = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
 
 func TestYearFrom(t *testing.T) {
 	tests := []struct {
