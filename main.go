@@ -380,13 +380,13 @@ func doWatchlist(args []string, jsonFlag bool) {
 			mediaType = args[1]
 		}
 		if mediaType == "tv" {
-			resp, err := client.GetWatchlistTV()
+			shows, err := client.GetWatchlistTV()
 			exitOnErr(err)
-			output.TVShows(resp.Results, jsonFlag)
+			output.TVShows(shows, jsonFlag)
 		} else {
-			resp, err := client.GetWatchlistMovies()
+			movies, err := client.GetWatchlistMovies()
 			exitOnErr(err)
-			output.Movies(resp.Results, jsonFlag)
+			output.Movies(movies, jsonFlag)
 		}
 
 	case "add":

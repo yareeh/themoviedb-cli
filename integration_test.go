@@ -233,12 +233,12 @@ func TestIntegrationWatchlistAddAndRemove(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	// Verify it's in the watchlist
-	resp, err := client.GetWatchlistMovies()
+	movies, err := client.GetWatchlistMovies()
 	if err != nil {
 		t.Fatalf("GetWatchlistMovies: %v", err)
 	}
 	found := false
-	for _, m := range resp.Results {
+	for _, m := range movies {
 		if m.ID == testMovieID {
 			found = true
 		}
